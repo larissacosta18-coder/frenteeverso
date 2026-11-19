@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards de Mitos e Verdades</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header {
+            width: 100%;
+            background-color: #2563eb;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        /* Estilo do Flashcard */
+        .card {
+            background-color: white;
+            width: 100%;
+            min-height: 220px;
+            border-radius: 16px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s;
+            border: 2px solid #e2e8f0;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .card.verdade {
+            background-color: #dcfce7;
+            border-color: #22c55e;
+        }
+
+        .card.mito {
+            background-color: #fee2e2;
+            border-color: #ef4444;
+        }
+
+        .tag {
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background-color: #e2e8f0;
+            color: #475569;
+            margin-bottom: 15px;
+        }
+
+        #texto-card {
+            font-size: 1.25rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        /* Botões */
+        .botoes {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .btn-mito {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-verdade {
+            background-color: #22c55e;
+            color: white;
+        }
+
+        .btn-proximo {
+            background-color: #3b82f6;
+            color: white;
+            width: 100%;
+            display: none;
+        }
+
+        footer {
+            width: 100%;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Mitos e Verdades</h1>
+        <p>Leia a afirmação e descubra o que é fato!</p>
+    </header>
+
+    <main>
+        <div class="card" id="flashcard">
+            <span class="tag" id="tag-status">Afirmação 1</span>
+            <p id="texto-card">Beber água com limão em jejum emagrece sozinho.</p>
+        </div>
+
+        <div class="botoes" id="area-botoes">
+            <button class="btn-mito" onclick="verificarResposta(false)">É Mito!</button>
+            <button class="btn-verdade" onclick="verificarResposta(true)">É Verdade!</button>
+        </div>
+
+        <button class="btn-proximo" id="btn-proximo" onclick="proximoCard()">Próximo Card ➔</button>
+    </main>
+
+    <footer>
+        <p>Projeto Escolar • Protótipo v1.0</p>
+    </footer>
+
+    <script>
+        // Lista de perguntas (você pode trocar pelo tema do seu grupo!)
+        const flashcards = [
+            {
+                pergunta: "Beber água com limão em jejum emagrece sozinho.",
+                ehVerdade: false,
+                explicacao: "MITO! O limão tem vitamina C e hidrata, mas não queima gordura sozinho."
+            },
+            {
+                pergunta: "O cérebro humano continua ativo enquanto dormimos.",
+                ehVerdade: true,
+                explicacao: "VERDADE! Durante o sono, o cérebro organiza memórias e regula funções do corpo."
+            },
+            {
+                pergunta: "Usar o celular enquanto ele carrega faz a bateria explodir sempre.",
+                ehVerdade: false,
+                explicacao: "MITO! O uso normal não explode o aparelho, o perigo real é usar carregadores piratas ou danificados."
+            }
+        ];
+
+        let indiceAtual = 0;
+
+        function carregarCard() {
+            const card = document.getElementById("flashcard");
+            const tag = document.getElementById("tag-status");
+            const texto = document.getElementById("texto-card");
+            const areaBotoes = document.getElementById("area-botoes");
+            const btnProximo = document.getElementById("btn-proximo");
+
+            card.className = "card";
+            tag.innerText = `Afirmação ${indiceAtual + 1} de ${flashcards.length}`;
+            texto.innerText = flashcards[indiceAtual].pergunta;
+            areaBotoes.style.display = "flex";
+            btnProximo.style.display = "none";
+        }
+
+        function verificarResposta(escolhaUsuario) {
+            const atual = flashcards[indiceAtual];
+            const card = document.getElementById("flashcard");
+            const tag = document.getElementById("tag-status");
+            const texto = document.getElementById("texto-card");
+
+            if (escolhaUsuario === atual.ehVerdade) {
+                tag.innerText = "Você acertou!";
+            } else {
+                tag.innerText = "Ops, não foi dessa vez!";
+            }
+
+            card.classList.add(atual.ehVerdade ? "verdade" : "mito");
+            texto.innerText = atual.explicacao;
+
+            document.getElementById("area-botoes").style.display = "none";
+            document.getElementById("btn-proximo").style.display = "block";
+        }
+
+        function proximoCard() {
+            indiceAtual++;
+            if (indiceAtual >= flashcards.length) {
+                indiceAtual = 0; // Reinicia o baralho
+            }
+            carregarCard();
+        }
+    </script>
+
+</body>
+</html>
